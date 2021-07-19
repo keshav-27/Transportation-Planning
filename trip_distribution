@@ -1,0 +1,47 @@
+%% Calculating Ki
+
+K = zeros(9, 1);
+for i = 1:9
+    for k = 1:9
+        K(i) = K(i) + A(k)/(C(i, k)^1.9);
+    end
+end
+
+%% Calculating Tij for first time using Gravity model
+
+T = zeros(9, 2, 10);
+for i = 1:9
+    for j = 1:9
+        T(i, j, 1) = P(i)*A(j)/(K(i)*C(i, j)^1.9);
+    end
+end
+
+%% 10 iterations to compute Tij
+
+rf = ones(9,1); cf = ones(9,1); %row and column factors
+for k = 2:10
+    if mod(k, 2) == 0   % Using row and column factor for 
+    for i = 1:9         % odd and even iterations respectively
+        cf(i) = A(i)/sum(T(:, i, k-1));
+        T(:, i, k) = cf(i)*T(:, i, k-1);
+    end
+    else
+    for i = 1:9
+        rf(i) = P(i)/sum(T(i, :, k-1));
+        T(i, :, k) = rf(i)*T(i, :, k-1);
+    end
+    end
+end  
+
+%%
+% for i = 1:9
+%     C(i, i) = 5;
+% end
+
+for i = 1:9
+    for j = 1:9
+        if (i < j)
+            T(i, j, 10) = T(i,j, 10) + T(j,i, 10);
+        end
+    end
+end
